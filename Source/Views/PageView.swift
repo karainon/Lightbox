@@ -107,7 +107,6 @@ class PageView: UIScrollView {
       guard let self = self else {
         return
       }
-
       self.isUserInteractionEnabled = true
       self.configureImageView()
       self.pageViewDelegate?.remoteImageDidLoad(image, imageView: self.imageView)
@@ -213,6 +212,12 @@ extension PageView: LayoutConfigurable {
     zoomScale = minimumZoomScale
 
     configureImageView()
+    // For longlong image.
+    if !hasZoomed && imageView.frame.width * maximumZoomScale < contentFrame.width {
+        // initial state.
+        maximumZoomScale = contentFrame.width / imageView.frame.width
+        print("new maximumZoomScale: \(maximumZoomScale)")
+    }
   }
 }
 
