@@ -1,6 +1,6 @@
 import UIKit
 
-class LightboxTransition: UIPercentDrivenInteractiveTransition {
+public class LightboxTransition: UIPercentDrivenInteractiveTransition {
 
   lazy var panGestureRecognizer: UIPanGestureRecognizer = { [unowned self] in
     let gesture = UIPanGestureRecognizer()
@@ -14,15 +14,15 @@ class LightboxTransition: UIPercentDrivenInteractiveTransition {
   var dismissing = false
   var initialOrigin = CGPoint(x: 0, y: 0)
 
-  var scrollView: UIScrollView? {
+  public var scrollView: UIScrollView? {
     didSet {
       guard let scrollView = scrollView else { return }
       scrollView.addGestureRecognizer(panGestureRecognizer)
     }
   }
 
-  weak var lightboxController: LightboxController?
-
+  public weak var lightboxController: LightboxController?
+    
   // MARK: - Transition
 
   func transition(_ show: Bool) {
@@ -51,6 +51,11 @@ class LightboxTransition: UIPercentDrivenInteractiveTransition {
     case .changed:
       update(percentage)
       scrollView?.frame.origin.y = initialOrigin.y + translation.y
+      guard let controller = lightboxController else { return }
+      let maxPercentage: CGFloat = 1
+      controller.effectView.alpha = percentage > maxPercentage ? maxPercentage : maxPercentage - percentage * 2
+      controller.backgroundView.alpha = percentage > maxPercentage ? maxPercentage : maxPercentage - percentage * 6
+
     case .ended, .cancelled:
 
       var time = translation.y * 3 / abs(velocity.y)
@@ -59,7 +64,7 @@ class LightboxTransition: UIPercentDrivenInteractiveTransition {
       interactive = false
       lightboxController?.presented = true
 
-      if percentage > 0.1 {
+      if percentage > 0.2 {
         finish()
         guard let controller = lightboxController else { return }
 
@@ -70,21 +75,23 @@ class LightboxTransition: UIPercentDrivenInteractiveTransition {
           self.scrollView?.frame.origin.y = translation.y * 3
           controller.view.alpha = 0
           controller.view.backgroundColor = UIColor.black.withAlphaComponent(0)
+          controller.effectView.alpha = 0
+          controller.backgroundView.alpha = 0
           }, completion: { _ in })
       } else {
         cancel()
-
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.035) {
-          UIView.animate(withDuration: 0.35, animations: {
-            self.scrollView?.frame.origin = self.initialOrigin
-          })
-        }
+      UIView.animate(withDuration: 0.5, animations: {
+        guard let controller = self.lightboxController else { return }
+        self.scrollView?.frame.origin = self.initialOrigin
+        controller.effectView.alpha = 1
+        controller.backgroundView.alpha = 1
+      })
       }
     default: break
     }
   }
 
-  override func finish() {
+  override public func finish() {
     super.finish()
 
     guard let lightboxController = lightboxController else { return }
@@ -96,11 +103,11 @@ class LightboxTransition: UIPercentDrivenInteractiveTransition {
 
 extension LightboxTransition: UIViewControllerAnimatedTransitioning {
 
-  func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+    public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
     return 0.25
   }
 
-  func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+    public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
     let container = transitionContext.containerView
 
     guard let fromView = transitionContext.view(forKey: UITransitionContextViewKey.from),
@@ -133,23 +140,23 @@ extension LightboxTransition: UIViewControllerAnimatedTransitioning {
 
 extension LightboxTransition: UIViewControllerTransitioningDelegate {
 
-  func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
     dismissing = true
     return self
   }
 
-  func animationController(forPresented presented: UIViewController,
+    public func animationController(forPresented presented: UIViewController,
                            presenting: UIViewController,
                            source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
     dismissing = false
     return self
   }
 
-  func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+    public func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
     return interactive ? self : nil
   }
 
-  func interactionControllerForPresentation(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+    public func interactionControllerForPresentation(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
     return interactive ? self : nil
   }
 }
@@ -158,7 +165,7 @@ extension LightboxTransition: UIViewControllerTransitioningDelegate {
 
 extension LightboxTransition: UIGestureRecognizerDelegate {
 
-  func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
     var result = false
 
     if let panGestureRecognizer = gestureRecognizer as? UIPanGestureRecognizer {
