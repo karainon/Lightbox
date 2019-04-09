@@ -39,7 +39,7 @@ public class LightboxTransition: UIPercentDrivenInteractiveTransition {
 
   @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
     let translation = gesture.translation(in: scrollView)
-    let percentage = abs(translation.y) / UIScreen.main.bounds.height / 1.5
+    let percentage = abs(translation.y) / UIScreen.main.bounds.height
     let velocity = gesture.velocity(in: scrollView)
 
     switch gesture.state {
@@ -54,12 +54,13 @@ public class LightboxTransition: UIPercentDrivenInteractiveTransition {
       guard let controller = lightboxController else { return }
       let maxPercentage: CGFloat = 1
       controller.effectView.alpha = percentage > maxPercentage ? maxPercentage : maxPercentage - percentage * 2
-      controller.backgroundView.alpha = percentage > maxPercentage ? maxPercentage : maxPercentage - percentage * 6
+      controller.backgroundView.alpha = percentage > maxPercentage ? maxPercentage : maxPercentage - percentage * 4
 
     case .ended, .cancelled:
 
       var time = translation.y * 3 / abs(velocity.y)
       if time > 1 { time = 0.7 }
+      time = 0.4
 
       interactive = false
       lightboxController?.presented = true
@@ -80,7 +81,7 @@ public class LightboxTransition: UIPercentDrivenInteractiveTransition {
           }, completion: { _ in })
       } else {
         cancel()
-      UIView.animate(withDuration: 0.5, animations: {
+      UIView.animate(withDuration: 0.4, animations: {
         guard let controller = self.lightboxController else { return }
         self.scrollView?.frame.origin = self.initialOrigin
         controller.effectView.alpha = 1

@@ -120,7 +120,7 @@ open class LightboxController: UIViewController {
     }
   }
 
-  open var spacing: CGFloat = 20 {
+  open var spacing: CGFloat = 0 {
     didSet {
       configureLayout(view.bounds.size)
     }
@@ -165,7 +165,7 @@ open class LightboxController: UIViewController {
 
   open override func viewDidLoad() {
     super.viewDidLoad()
-    
+
     statusBarHidden = UIApplication.shared.isStatusBarHidden
 
     view.backgroundColor = UIColor.black
@@ -173,10 +173,7 @@ open class LightboxController: UIViewController {
     transitionManager.scrollView = scrollView
     transitioningDelegate = transitionManager
 
-    [scrollView, overlayView, headerView, footerView].forEach {
-        $0.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.addSubview($0)
-    }
+    [scrollView, overlayView, headerView, footerView].forEach { view.addSubview($0) }
     overlayView.addGestureRecognizer(overlayTapGestureRecognizer)
 
     configurePages(initialImages)
