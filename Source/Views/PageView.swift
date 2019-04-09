@@ -206,10 +206,10 @@ class PageView: UIScrollView {
 extension PageView: LayoutConfigurable {
 
   @objc func configureLayout() {
+    zoomScale = minimumZoomScale
     contentFrame = frame
     contentSize = frame.size
     imageView.frame = frame
-    zoomScale = minimumZoomScale
 
     configureImageView()
     // For longlong image.
